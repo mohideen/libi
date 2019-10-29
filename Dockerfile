@@ -37,12 +37,20 @@ COPY docker/vhost.conf /etc/apache2/sites-enabled/000-default.conf
 
 COPY docker/settings.php /app/settings.php
 
+# Copy the staff-blog composer dependencies configuration before rest of the codebase.
+# This helps to avoid re-running `composer install` for changes unrelated to composer.json
+# by using Docker cache effectively and thus reducing the image build time.
+COPY composer.json /app/web/blog/
+COPY composer.lock /app/web/blog/
+
+# Set working dir to /app/web/blog
+WORKDIR /app/web/blog
+
+# Install dependencies
+RUN composer install --no-dev
+
 # Copy the staff-blog codebase to /app/web/blog
 COPY . /app/web/blog
 
-# Install dependcies, set ownership and delete the sync dir under /app/web/blog
-RUN cd /app/web/blog && \
-	composer install --no-dev && \
-	chown -R www-data:www-data /app/web/blog
-
-WORKDIR /app/web/blog
+# Set ownership to www-data user.
+RUN chown -R www-data:www-data /app/web/blog

@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  drupal:
+    image: libi:latest
+    build: .
+    ports:
+      - 8000:80
+    volumes:
+      - /apps/git/staff-blog-configuration:/app/sync
+      - ./docker/settings.php:/app/settings.php
+      - .:/app/web/blog
+    command:
+      - /bin/sh
+      - -c
+      - |
+          export settings='$$settings'
+          export _SERVER='$$_SERVER'
+          export app_root='$$app_root'
+          export site_path='$$site_path'
+          export databases='$$databases'
+          export config_directories='$$config_directories'
+          export content_directories='$$content_directories'
+          envsubst  < /app/settings.php > /app/web/blog/sites/default/settings.php
+          apache2-foreground
+    environment:
+      DB_PASSWORD: somepassword
+      HASH_SALT: somevalue
+      DIGEST_USER: 1
+      DIGEST_USER: 1
+      DIGEST_REPLY_TO: example@umd.edu
+
+  db:
+    image: postgres:10
+    environment:
+      POSTGRES_DB: drupaldb
+      POSTGRES_USER: drupaluser
+      POSTGRES_PASSWORD: somepassword
+    volumes:
+        - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:

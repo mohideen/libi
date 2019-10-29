@@ -4,7 +4,13 @@ $settings['reverse_proxy'] = TRUE;
 
 $settings['reverse_proxy_addresses'] = array($_SERVER['REMOTE_ADDR']);
 
+// Identify the right set of IPs needed for running locally and on servers
 $settings['trusted_host_patterns'] = [
+  '^localhost$',
+  '^docker-local$',
+  '^172.17.0.1$',
+  '^172.17.0.1$',
+  '^192.168.64.3$',
   '^.+\.umd\.edu$',
 ];
 
